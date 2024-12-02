@@ -7,9 +7,10 @@ data = [line.split() for line in data]
 dd = []
 for line in data:
     dd.append([int(aa) for aa in line])
+
+
 # %%
-safe = 0
-for line in dd:
+def is_line_safe(line):
     safeint = 1
     direction = 0
     if len(line) > 1:
@@ -24,27 +25,35 @@ for line in dd:
             safeint = 0
         elif direction == 0:
             safeint = 0
-    print(line, safeint)
-    safe += safeint
+    return safeint
+
+
+safe = 0
+for line in dd:
+    safe += is_line_safe(line)
+print(safe)
 # %%
 
-qq = 0
-for fff, sss in zip(ff, ss):
-    print(fff, sss, abs(fff - sss))
-    qq += abs(fff - sss)
-print(qq)
-# current_sum = 0
-# max_sum = 0
-# for line in data:
-#     if line:
-#         current_sum += int(line)
-#     else:
-#         max_sum = max(max_sum, current_sum)
-#         current_sum = 0
-
-# %%
-qq = 0
-for fff in ff:
-    qq += fff * ss.count(fff)
-print(qq)
+for line in dd:
+    gtsum = 0
+    ltsum = 0
+    for ii, iinext in zip(line[:-1], line[1:]):
+        if ii > iinext:
+            gtsum += 1
+        elif ii < iinext:
+            ltsum += 1
+    if gtsum >= 2 and ltsum >= 2:
+        continue
+    if ltsum <= 1:
+        direction = 1
+    else:
+        direction = -1
+safe = 0
+for line in dd:
+    for removed_element in range(len(line)):
+        newline = line[0:removed_element] + line[removed_element + 1 :]
+        if is_line_safe(newline):
+            safe += 1
+            break
+print(safe)
 # %%
