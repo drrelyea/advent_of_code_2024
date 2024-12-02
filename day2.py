@@ -25,18 +25,18 @@ def is_line_safe(line):
     return safeint
 
 
-safe = 0
-for line in dd:
-    safe += is_line_safe(line)
+safe = sum(map(is_line_safe, dd))
 print(safe)
 # %%
 
-safe = 0
-for line in dd:
-    for removed_element in range(len(line)):
-        newline = line[0:removed_element] + line[removed_element + 1 :]
-        if is_line_safe(newline):
-            safe += 1
-            break
+
+def is_line_almost_safe(line):
+    return any(
+        is_line_safe(line[0:removed_element] + line[removed_element + 1 :])
+        for removed_element in range(len(line))
+    )
+
+
+safe = sum(map(is_line_almost_safe, dd))
 print(safe)
 # %%
