@@ -3,10 +3,7 @@ from utils import load_advent_of_code
 
 data = load_advent_of_code(2)
 # %%
-data = [line.split() for line in data]
-dd = []
-for line in data:
-    dd.append([int(aa) for aa in line])
+dd = [list(map(int, line.split())) for line in data]
 
 
 # %%
@@ -34,20 +31,6 @@ for line in dd:
 print(safe)
 # %%
 
-for line in dd:
-    gtsum = 0
-    ltsum = 0
-    for ii, iinext in zip(line[:-1], line[1:]):
-        if ii > iinext:
-            gtsum += 1
-        elif ii < iinext:
-            ltsum += 1
-    if gtsum >= 2 and ltsum >= 2:
-        continue
-    if ltsum <= 1:
-        direction = 1
-    else:
-        direction = -1
 safe = 0
 for line in dd:
     for removed_element in range(len(line)):
