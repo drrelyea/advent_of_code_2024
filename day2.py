@@ -25,7 +25,17 @@ def is_line_safe(line):
     return safeint
 
 
-safe = sum(map(is_line_safe, dd))
+def is_line_safe2(line):
+    if line != sorted(line) and line != sorted(line)[::-1]:
+        return 0
+    if any(
+        [not (1 <= abs(ii - iinext) <= 3) for ii, iinext in zip(line[:-1], line[1:])]
+    ):
+        return 0
+    return 1
+
+
+safe = sum(map(is_line_safe2, dd))
 print(safe)
 # %%
 
