@@ -42,7 +42,7 @@ print(safe)
 
 def is_line_almost_safe(line):
     return any(
-        is_line_safe(line[0:removed_element] + line[removed_element + 1 :])
+        is_line_safe2(line[0:removed_element] + line[removed_element + 1 :])
         for removed_element in range(len(line))
     )
 
