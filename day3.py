@@ -57,3 +57,20 @@ for ii in range(len(alllines)):
 
 print(running_total)
 # %%
+
+total1 = total2 = 0
+enabled = True
+
+for a, b, do, dont in re.findall(
+    r"mul\((\d+),(\d+)\)|(do\(\))|(don't\(\))", "".join(data)
+):
+    if do or dont:
+        enabled = bool(do)
+    else:
+        x = int(a) * int(b)
+        total1 += x
+        total2 += x * enabled
+
+print(total1, total2)
+
+# %%
