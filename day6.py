@@ -1,9 +1,7 @@
 # %%
-import re
-
 from utils import load_advent_of_code
 
-data = load_advent_of_code(20245)
+data = load_advent_of_code(20246)
 print(data)
 for iline, line in enumerate(data):
     if "^" in line:
@@ -37,7 +35,7 @@ def go_through_maze(data):
 
         newy = curry + currv[0]
         newx = currx + currv[1]
-        if 0 <= newy < mapsize and 0 <= newx < mapsize and datacopy[newy][newx] == "#":
+        if 0 <= newy < mapsize and 0 <= newx < mapsize and data[newy][newx] == "#":
             dirpointer = (dirpointer + 1) % 4
         else:
             curry = newy
