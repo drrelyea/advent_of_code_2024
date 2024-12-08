@@ -7,6 +7,7 @@ from utils import load_advent_of_code
 data = load_advent_of_code(20247)
 print(data)
 
+
 # %%
 letters = set("".join(data))
 letters.remove(".")
