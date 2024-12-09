@@ -57,3 +57,9 @@ def data_to_numpy(
 
     newdata = np.array(padded_data, dtype=output_type)
     return newdata
+
+
+def get_indices_from_numpy(data, query):
+    two_arrays = np.where(data == query)
+    zipped_arrays = [(x, y) for (x, y) in zip(two_arrays[0], two_arrays[1])]
+    return np.array(zipped_arrays, dtype=int)

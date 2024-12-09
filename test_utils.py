@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from utils import data_to_numpy
+from utils import data_to_numpy, get_indices_from_numpy
 
 
 @pytest.fixture
@@ -169,3 +169,10 @@ def test_delimited_numerical_data_to_numpy(delimited_numerical_data):
             delimiter=delimiter,
             pad_lines=line_padding,
         )
+
+
+def test_get_indices_from_numpy(numerical_data):
+    numpy_data = data_to_numpy(numerical_data, output_type=int)
+    indices = get_indices_from_numpy(numpy_data, 7)
+    print(indices)
+    assert np.all(indices == np.array([[2, 0], [2, 4], [4, 0], [4, 3]]))

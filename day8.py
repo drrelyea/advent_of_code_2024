@@ -2,11 +2,14 @@
 import operator
 from itertools import combinations
 
-from utils import load_advent_of_code
+import numpy as np
+from utils import data_to_numpy, load_advent_of_code
 
 data = load_advent_of_code(20247)
 print(data)
 
+# %%
+nn = data_to_numpy(data)
 
 # %%
 letters = set("".join(data))
