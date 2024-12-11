@@ -197,3 +197,23 @@ def count(x, d=75):
 print(sum(map(count, numlist)))
 
 # %%
+
+
+@cache
+def count(num, iteration):
+    if iteration == max_num_iterations:
+        return 1
+    elif num == 0:
+        return count(1, iteration + 1)
+    elif len(str(num)) % 2 == 0:
+        ll = len(str(num))
+        return count(int(str(num)[0 : ll // 2]), iteration + 1) + count(
+            int(str(num)[ll // 2 :]), iteration + 1
+        )
+    else:
+        return count(num * 2024, iteration + 1)
+
+
+print(sum(count(num, 0) for num in numlist))
+
+# %%
