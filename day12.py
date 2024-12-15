@@ -9,38 +9,6 @@ from utils import data_to_numpy, get_indices_from_numpy, load_advent_of_code
 data = load_advent_of_code(202412)
 print(data)
 
-# data = [
-#     "AAAA",
-#     "BBCD",
-#     "BBCC",
-#     "EEEC",
-# ]
-
-# data = [
-#     "OOOOO",
-#     "OXOXO",
-#     "OOOOO",
-#     "OXOXO",
-#     "OOOOO",
-# ]
-
-# data = [
-#     "EEEEE",
-#     "EXXXX",
-#     "EEEEE",
-#     "EXXXX",
-#     "EEEEE",
-# ]
-
-# data = [
-#     "AAAAAA",
-#     "AAABBA",
-#     "AAABBA",
-#     "ABBAAA",
-#     "ABBAAA",
-#     "AAAAAA",
-# ]
-
 nn = data_to_numpy(data)
 nn = nn.T
 
@@ -51,21 +19,78 @@ for ii in range(size):
     for jj in range(size):
         shapedict[(ii, jj)] = nn[(ii, jj)]
 # %%
+grid = {i + j * 1j: c for i, r in enumerate(data) for j, c in enumerate(r.strip())}
+sets = {p: {p} for p in grid}
 
-fencedict = dict()
-for ii in np.arange(size + 1):
-    for jj in np.arange(size + 1):
-        fencedict[(ii, jj)] = [0, 0]  # left, top
-for ii in np.arange(size + 1):
-    for jj in np.arange(size + 1):
-        if ii == 0 or ii == size:
-            fencedict[(ii, jj)][0] = 1  # left
-        if jj == 0 or jj == size:
-            fencedict[(ii, jj)][1] = 1  # top
-        if shapedict.get((ii - 1, jj), "\x01") != shapedict.get((ii, jj), "\x02"):
-            fencedict[(ii, jj)][0] = 1
-        if shapedict.get((ii, jj - 1), "\x01") != shapedict.get((ii, jj), "\x02"):
-            fencedict[(ii, jj)][1] = 1
+
+# %%
+
+
+def get_all_fences(dd):
+    """
+    coordinates: 0 is x, 1 is y
+    fence in the 0 position borders the left edge
+    fence in the 1 position borders the top edge
+    grid is one larger than the data
+    """
+    fencedict = dict()
+    for ii in np.arange(size + 1):
+        for jj in np.arange(size + 1):
+            fencedict[(ii, jj)] = [0, 0]  # left, top
+    for ii in np.arange(size + 1):
+        for jj in np.arange(size + 1):
+            if ii == 0 or ii == size:
+                fencedict[(ii, jj)][0] = 1  # left
+            if jj == 0 or jj == size:
+                fencedict[(ii, jj)][1] = 1  # top
+            if dd.get((ii - 1, jj), "\x01") != dd.get((ii, jj), "\x02"):
+                fencedict[(ii, jj)][0] = 1
+            if dd.get((ii, jj - 1), "\x01") != dd.get((ii, jj), "\x02"):
+                fencedict[(ii, jj)][1] = 1
+    return fencedict
+
+
+def addpoints(p1, p2):
+    return (p1[0] + p2[0], p1[1] + p2[1])
+
+
+def expand_blob_around_point(pp, dd):
+    directions = ((0, 1), (1, 0), (0, -1), (-1, 0))
+    extra_points = []
+    for direction in directions:
+        newpoint = addpoints(pp, direction)
+        if dd.get(newpoint, "\x01") == dd[pp]:
+            extra_points.append(newpoint)
+    return extra_points
+
+
+def find_blob_containing_point(pp, dd):
+    current_blob = [pp]
+    untried_points = [pp]
+    while len(untried_points) > 0:
+        untried_point = untried_points.pop()
+        newpoints = expand_blob_around_point(untried_point, dd)
+        newpoints = [nn for nn in newpoints if nn not in current_blob]
+        current_blob += newpoints
+        untried_points += newpoints
+    return current_blob
+
+
+def get_number_of_fences_around_point(pp, fd):
+    nfence = 0
+    if fd.get(pp, [0, 0])[0] == 1:
+        nfence += 1
+    if fd.get(pp, [0, 0])[1] == 1:
+        nfence += 1
+    if fd.get(addpoints(pp, (1, 0)), [0, 0])[0] == 1:
+        nfence += 1
+    if fd.get(addpoints(pp, (0, 1)), [0, 0])[1] == 1:
+        nfence += 1
+    return nfence
+
+
+# %%
+fencedict = get_all_fences(shapedict)
 
 allpoints = list()
 for ii in range(size):
@@ -73,58 +98,11 @@ for ii in range(size):
         allpoints.append((ii, jj))
 
 
-def addpoints(p1, p2):
-    return (p1[0] + p2[0], p1[1] + p2[1])
-
-
-def expand_blob(pp, dictdata):
-    directions = ((0, 1), (1, 0), (0, -1), (-1, 0))
-    if pp not in dictdata:
-        raise ValueError("AAAAA", pp)
-    pointval = dictdata[pp]
-    extra_points = []
-    for direction in directions:
-        newpoint = addpoints(pp, direction)
-        if dictdata.get(newpoint, "\x01") == pointval:
-            extra_points.append(newpoint)
-    return extra_points
-
-
-def find_blob(pp, dictdata):
-    current_blob = [pp]
-    untried_points = [pp]
-    while len(untried_points) > 0:
-        untried_point = untried_points.pop()
-        # print("u", untried_point)
-        newpoints = expand_blob(untried_point, dictdata)
-        # print("np0", newpoints)
-        newpoints = [nn for nn in newpoints if nn not in current_blob]
-        # print("np1", newpoints)
-        current_blob += newpoints
-        # print("cb", current_blob)
-        untried_points += newpoints
-    return current_blob
-
-
-def get_number_of_fences_around_point(pp, fencedict):
-    nfence = 0
-    if fencedict.get(pp, [0, 0])[0] == 1:
-        nfence += 1
-    if fencedict.get(pp, [0, 0])[1] == 1:
-        nfence += 1
-    if fencedict.get(addpoints(pp, (1, 0)), [0, 0])[0] == 1:
-        nfence += 1
-    if fencedict.get(addpoints(pp, (0, 1)), [0, 0])[1] == 1:
-        nfence += 1
-    return nfence
-
-
-# %%
 total = 0
 while len(allpoints) > 0:
     point = allpoints[0]
     # print("op", point)
-    blob_points = find_blob(point, shapedict)
+    blob_points = find_blob_containing_point(point, shapedict)
     # print("bp", blob_points)
     area = len(blob_points)
     fences = 0
@@ -208,7 +186,7 @@ total = 0
 while len(allpoints) > 0:
     point = allpoints[0]
     # print("op", point)
-    blob_points = find_blob(point, shapedict)
+    blob_points = find_blob_containing_point(point, shapedict)
     # print("bp", blob_points)
     area = len(blob_points)
     blob_fences = dict()
