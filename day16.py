@@ -26,6 +26,7 @@ grid = {i + j * 1j: c for i, r in enumerate(data) for j, c in enumerate(r.strip(
 startpos = [key for key, val in grid.items() if val == "S"][0]
 endpos = [key for key, val in grid.items() if val == "E"][0]
 directions = (1, -1, 0 + 1j, 0 - 1j)
+rotations = (1, 0 + 1j, 0 - 1j)
 
 # %%
 
@@ -39,14 +40,15 @@ def step_forward(*, pos, heading, score):
         if best_positions[pos][1] > score:
             best_positions[pos][1] = score
     else:
-        for dir in directions:
+        for rot in rotations:
+            dir = rot * heading
             possible_score = score + 1000 * (dir != heading)
             if grid[pos + dir] == "#":
                 continue
             if best_positions[pos][dir] <= possible_score:
                 continue
             best_positions[pos][dir] = possible_score
-            step_forward(pos + dir, dir, possible_score + 1)
+            step_forward(pos=pos + dir, heading=dir, score=possible_score + 1)
 
 
 step_forward(pos=startpos, heading=1j, score=0)
@@ -59,7 +61,8 @@ best_positions = {
 }
 
 
-def step_forward(*, pos, heading, score, path, bestpaths):
+def step_forward(*, heading, score, path, bestpaths):
+    pos = path[-1]
     if grid[pos] == "E":
         if best_positions[pos][1] == score:
             bestpaths.append(path.copy())
@@ -67,7 +70,8 @@ def step_forward(*, pos, heading, score, path, bestpaths):
             best_positions[pos][1] = score
             bestpaths = [path.copy()]
     else:
-        for dir in directions:
+        for rot in rotations:
+            dir = rot * heading
             possible_score = score + 1000 * (dir != heading)
             if grid[pos + dir] == "#":
                 continue
@@ -75,14 +79,46 @@ def step_forward(*, pos, heading, score, path, bestpaths):
                 continue
             best_positions[pos][dir] = possible_score
             bestpaths = step_forward(
-                pos + dir, dir, possible_score + 1, path + [pos + dir], bestpaths
+                heading=dir,
+                score=possible_score + 1,
+                path=path + [pos + dir],
+                bestpaths=bestpaths,
             )
     return bestpaths
 
 
-bestpaths = step_forward(
-    pos=startpos, heading=1j, score=0, path=[startpos], bestpaths=[]
-)
+bestpaths = step_forward(heading=1j, score=0, path=[startpos], bestpaths=[])
 print(len(set([bb for path in bestpaths for bb in path])))
 
+# %%
+from collections import defaultdict
+from heapq import heappop, heappush
+
+grid = {i + j * 1j: c for i, r in enumerate(data) for j, c in enumerate(r) if c != "#"}
+
+(start,) = (p for p in grid if grid[p] in "S")
+
+seen = []
+best = 1e9
+dist = defaultdict(lambda: 1e9)
+todo = [(0, t := 0, start, 1j, [start])]
+
+while todo:
+    score, _, pos, dir, path = heappop(todo)
+
+    if score > dist[pos, dir]:
+        continue
+    else:
+        dist[pos, dir] = score
+
+    if grid[pos] == "E" and score <= best:
+        seen += path
+        best = score
+
+    for rot, pts in (1, 1), (1j, 1001), (-1j, 1001):
+        new = pos + dir * rot
+        if new in grid:
+            heappush(todo, (score + pts, t := t + 1, new, dir * rot, path + [new]))
+
+print(best, len(set(seen)))
 # %%
