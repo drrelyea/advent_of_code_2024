@@ -52,7 +52,6 @@ largesets = {3: triplets}
 might_be_bigger = True
 set_size = 3
 while might_be_bigger:
-    print(set_size)
     might_be_bigger = False
     next_bigger = set()
     for triplet in largesets[set_size]:

@@ -169,3 +169,8 @@ for ii in range(45):
 
 # 7 8 13 14 24 25 31
 # %%
+# LOL MANUAL
+
+bgs,pqc,rjm,swt,wsv,z07,z13,z31
+
+]
